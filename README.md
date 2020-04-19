@@ -13,3 +13,7 @@ ete_gui is web-based GUI application, which host local server to implement eteto
 - ete3
 - eel (https://github.com/samuelhwilliams/Eel)
 - bottle
+
+## Usage
+
+    python ete_gui.py
