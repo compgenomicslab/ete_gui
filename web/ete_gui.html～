@@ -1,0 +1,283 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Phylogenetic analysis pipeline by ETE3</title>
+    <link rel="stylesheet" href="/css/gn2.css?1584306608" type="text/css">
+    <style>.example{cursor:pointer;color:#003399;}.help{display:none;}</style>
+    <script src="/js/ete/ete.js?1584306608"></script>
+    <script src="/js/tree/pmove.js?1584306608"></script>
+    <script src="/js/jquery-1.9.1.min.js"></script>
+    <script>
+      $(document).ready(function(){$("#wf").click(function(){$("#help").animate({height: "toggle", opacity: "toggle"},"fast");});});
+    </script>
+    <script>
+    function createXMLHttpRequest(){
+      if (XMLHttpRequest){
+        return new XMLHttpRequest();
+      }
+      return null;
+    }
+    function showexample(){
+      var st = "aa";
+      var sf = ".seq";
+      if (document.getElementById("stn").checked === true) {
+        st = "nt";
+      }
+      if (document.getElementById("sfa").checked === true) {
+        sf = ".fasta";
+      }
+      var sfile = "/tools/ete/hsa126" + st + sf;
+      var xhr = createXMLHttpRequest();
+      xhr.abort();
+      xhr.onreadystatechange = function(){
+        if (xhr.readyState == 4 && xhr.status == 200){
+          document.getElementById("sequence").innerHTML = xhr.responseText;
+        }
+      }
+      xhr.open("get", sfile, true);
+      xhr.send(null);
+      document.getElementById("sequence").innerHTML = xhr.responseText;
+    }
+    function cl(){location.href="/ete_gui.html";}
+    onload=function(){
+      init_ete();
+      document.getElementById("example").addEventListener("click",function(){showexample();},false);
+      document.getElementById("example").addEventListener("mouseover",function(){this.style.color='#33cc99';},false);
+      document.getElementById("example").addEventListener("mouseout",function(){this.style.color='#003399';},false);
+    }
+    </script>
+  </head>
+  <body>
+    <table width=680>
+      <tr>
+        <td width=180 align="center">
+          <!-- <a href="https://www.genome.jp/"><img src="/Fig/gntop2.gif" alt="GenomeNet icon" border=0></a> -->
+        </td>
+        <td>
+          <h2 class="title2">Phylogenetic analysis pipeline by ETE3</h2>
+        </td>
+      </tr>
+    </table>
+
+    <br>
+    <table width=760 cellpadding=2 class="frame2">
+      <tr><td align="center" class="td20">
+          <table width=740>
+            <tr>
+              <th width=175><font class="current">ETE3</font></th>
+              <!--<th width=175><a href="javascript:void(pmove('ete','mafft'))">MAFFT</a></th>-->
+              <!--<th width=205><a href="javascript:void(pmove('ete','clustalw'))">CLUSTALW</a></th>-->
+              <!--<th width=185><a href="javascript:void(pmove('ete','prrn'))">PRRN</a></th>-->
+            </tr>
+          </table>
+      </td></tr>
+
+      <tr><td>
+
+          <br><div style="margin-left:20px;margin-right:20px">
+            <table width=720>
+              <tr><td>
+                  <form name="ete" id="ete" method="post" action="/tools-bin/ete" enctype="multipart/form-data">
+
+                    <table width=700>
+                      <tr><td align=right>
+                          <input type="button" value="Compute" onclick="go_ete()">
+                          <input type="button" value="Clear" onclick="cl()">
+                      </td></tr>
+                    </table>
+
+                    <b>Sequence type:</b>
+                    <input type="radio" name="seqtype" id="stp" value="protein" label="stp" checked="checked"><label for="stp">Protein</label>
+                    <input type="radio" name="seqtype" id="stn" value="nucleotide" label="stn" onclick="modtester()"><label for="stn">Nucleotide</label>
+                    <br><br>
+                    <b>Input type:</b>
+                    <input type="radio" name="seqformat" id="sfu" value="unaligned" label="sfu" checked="checked" onclick="msa()"><label for="sfu">Unaligned</label>
+                    <input type="radio" name="seqformat" id="sfa" value="aligned" label="sfa" onclick="msa()"><label for="sfa">Aligned</label>
+                    <br><br>
+                    <table>
+                      <tr>
+                        <td valign="top">Sequence data<br>(FASTA format)<br><br>
+                        <span id="example" class="example">Example</span>
+                        </td>
+                        <td><textarea name="sequence" id="sequence" style="font-size:12px;width:500px;height:100px"></textarea></td>
+                      </tr>
+                      <tr>
+                        <td>Local file name</td>
+                        <td><input type="file" name="upload_file" size=30></td>
+                      </tr>
+                    </table>
+                    <br>
+                    <b>Select <span id="wf" class="example">workflow</span>:</b>  <span id="selectedworkflow"></span><br><br>
+                    <table>
+                      <tr>
+                        <td>Aligner</td><td>Alignment cleaner</td><td>Model tester</td><td>Tree builder</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <select name="workflow1" id="workflow1" onchange="showwf()">
+                            <option value="none">none</option>
+                            <option value="mafft_default" selected="selected">mafft_default</option>
+                            <option value="mafft_einsi">mafft_einsi</option>
+                            <option value="mafft_linsi">mafft_linsi</option>
+                            <option value="mafft_ginsi">mafft_ginsi</option>
+                            <option value="clustalo_default">clustalo_default</option>
+                            <option value="muscle_default">muscle_default</option>
+                          </select>
+                        </td>
+                        <td>
+                          <select name="workflow2" id="workflow2" onchange="showwf()">
+                            <option value="-none" selected="selected">none</option>
+                            <option value="-trimal001">trimal001</option>
+                            <option value="-trimal01">trimal01</option>
+                            <option value="-trimal02">trimal02</option>
+                            <option value="-trimal05">trimal05</option>
+                            <option value="-trimal_gappyout">trimal_gappyout</option>
+                          </select>
+                        </td>
+                        <td>
+                          <select name="workflow3" id="workflow3" onchange="modtester();showwf()">
+                            <option value="-none" selected="selected">none</option>
+                            <option value="-prottest_default">prottest_default</option>
+                            <option value="-pmodeltest_full_ultrafast">pmodeltest_full_ultrafast</option>
+                            <option value="-pmodeltest_full_fast">pmodeltest_full_fast</option>
+                            <option value="-pmodeltest_full_slow">pmodeltest_full_slow</option>
+                            <option value="-pmodeltest_soft_ultrafast">pmodeltest_soft_ultrafast</option>
+                            <option value="-pmodeltest_soft_fast">pmodeltest_soft_fast</option>
+                            <option value="-pmodeltest_soft_slow">pmodeltest_soft_slow</option>
+                          </select>
+                        </td>
+                        <td>
+                          <select name="workflow4" id="workflow4" onchange="modtester();showwf()">
+                            <option value="-none">none</option>
+                            <option value="-bionj_default">bionj_default</option>
+                            <option value="-fasttree_default" selected="selected">fasttree_default</option>
+                            <option value="-fasttree_full">fasttree_full</option>
+                            <option value="-phyml_default">phyml_default</option>
+                            <option value="-phyml_default_bootstrap">phyml_default_bootstrap</option>
+                            <option value="-raxml_default">raxml_default</option>
+                            <option value="-raxml_default_bootstrap">raxml_default_bootstrap</option>
+                          </select>
+                        </td>
+                      </tr>
+                    </table>
+                    <br><br>
+                    <!-- <b>Enter your email address:</b> (optional) -->
+                    <!-- <input type="text" name="email" id="email" placeholder="your@email.com" size="30">-->
+                    <table width=700>
+                      <tr><td align=right>
+                          <input type="button" value="Compute" onclick="go_ete()">
+                          <input type="button" value="Clear" onclick="cl()">
+                      </td></tr>
+                    </table>
+                  </form>
+                </td>
+              </tr>
+            </table>
+
+            <div id="help" class="help">
+              <hr class="frame2">
+              <p>
+                <strong>WETE: a web interface of the ETE3 build function for sequences alignment and phylogenetic tree reconstruction</strong>
+              </p>
+              <p>
+                <strong>Aligners</strong>
+                :
+              </p>
+              <p>
+                mafft_default: mafft alignment with default parameters
+              </p>
+              <p>
+                mafft_einsi: mafft alignment using the E-INS-i mode
+              </p>
+              <p>
+                mafft_linsi: mafft alignment using the L-INS-i mode
+              </p>
+              <p>
+                mafft_ginsi: mafft alignment using the G-INS-i mode
+              </p>
+              <p>
+                clustalo_default: clustalo with default parameters
+              </p>
+              <p>
+                muscle_default: muscle alignment with default parameters
+              </p>
+              <p>
+                <strong>Alignments cleaners:</strong>
+              </p>
+              <p>
+                trimal001: trimal alignment cleaning removing columns with &gt;1% gaps
+              </p>
+              <p>
+                trimal01: trimal alignment cleaning removing columns with &gt;10% gaps
+              </p>
+              <p>
+                trimal02: trimal alignment cleaning removing columns with &gt;20% gaps
+              </p>
+              <p>
+                trimal03: trimal alignment cleaning removing columns with &gt;30% gaps
+              </p>
+              <p>
+                trimal05: trimal alignment cleaning removing columns with &gt;50% gaps
+              </p>
+              <p>
+                trimal_gappyout: trimal alignment cleaning using gappyout algorithm
+              </p>
+              <p>
+                <strong>Model testers:</strong>
+              </p>
+              <p>
+                prottest_default: Uses BioNJ trees to select best protein model from: JTT, WAG, VT, LG and MtREV. Fixed parameters: +G+I+F
+              </p>
+              <p>
+                pmodeltest_full_ultrafast: Test all models using NJ tree inference and skipping gamma, invariant sites, and frequency site estimations (!G!I!F)
+              </p>
+              <p>
+                pmodeltest_full_fast: Test all models using NJ tree inference
+              </p>
+              <p>
+                pmodeltest_full_slow: Test all models using ML tree inference
+              </p>
+              <p>
+                pmodeltest_soft_ultrafast: Test JTT,WAG,VT,LG,MtREV models using NJ tree inference and skipping gamma, invariant sites, and frequency site estimation
+                (!G!I!F)
+              </p>
+              <p>
+                pmodeltest_soft_fast: Test JTT,WAG,VT,LG,MtREV models using NJ tree inference
+              </p>
+              <p>
+                pmodeltest_soft_slow: Test JTT,WAG,VT,LG,MtREV models using ML tree inference
+              </p>
+              <p>
+                <strong>Tree builders:</strong>
+              </p>
+              <p>
+                bionj_default: BioNJ tree inferred with Phyml. Default models JTT/GTR
+              </p>
+              <p>
+                fasttree_default: Fasttree with default parameters
+              </p>
+              <p>
+                fasttree_full: Fasttree with slow NNI and MLACC=3
+              </p>
+              <p>
+                phyml_default: Phyml tree using +G+I+F, 4 classes and aLRT branch supports. Default models JTT/GTR
+              </p>
+              <p>
+                phyml_default_bootstrap: Phyml tree using +G+I+F, 4 classes and 100 bootstraps. Default models JTT/GTR
+              </p>
+              <p>
+                raxml_default: RAxML with default parameters, GAMMA JTT/GTR and aLRT branch supports.
+              </p>
+              <p>
+                raxml_default_bootstrap: RAxML with default parameters, GAMMA JTT/GTR and 100 bootstrap replicates
+              </p>
+            </div>
+
+          </div>
+        </td>
+      </tr>
+    </table>
+
+  </body>
+</html>

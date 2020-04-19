@@ -1,0 +1,82 @@
+<!doctype html><html>
+  <head>
+    <title>Phylogenetic analysis pipeline by ETE3</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script language="JavaScript" type="text/javascript" src="/js/jquery-1.9.1.min.js"></script>
+  <script>
+      //var show_workflow = document.getElementById('workflow')
+      //show_workflow.innerHTML = '<p>' + pass_worflow + '</p>'
+      $(document).ready(function(){        
+        var data = sessionStorage.getItem("workflow");
+        console.dir(data);
+        var w = document.getElementById("workflow")
+        w.innerHTML = data
+      });
+      function myFunction() {
+        var x = document.getElementById("myDIV");
+        if (x.style.display === "none") {
+          x.style.display = "block";
+        } else {
+          x.style.display = "none";
+        }
+      }
+      function show_tree() {
+        var url = window.location.href
+
+        var request = new XMLHttpRequest()
+        request.open("GET",url)
+        request.send(null);/*设置XHR对象不发送数据到服务器*/
+        request.onload = function() {/*设置当获XHR对象获取到返回信息后执行以下代码*/
+          if(request.status == 200) {/*如果返回的状态为200，即为成功获取数据*/
+                var p = document.getElementById("tree");/*获取DOM中id为luck的p元素*/
+                if (p.style.display === "none"){
+                  //alert('This is none')
+                  p.style.display="block"
+                  p.innerHTML = '<img class="center-fit" src=\"' + url + '/input_data.final_tree.png'  + '\">';
+                  
+                } else {
+                  //alert('Else')
+                  p.style.display = "none"
+                }
+                //p.innerHTML = request.responseText
+          }
+        }
+      }
+  </script>
+  <style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+    .imgbox {
+        display: grid;
+        height: 100%;
+    }
+    .center-fit {
+        max-width: 100%;
+        max-height: 100vh;
+        margin: auto;
+    }
+  </style>
+  </head>
+  <body>
+    <br><span class="h3">Result files</span><br>
+    <br><span class="h3">workflow</span><br>
+    <div id='workflow'></div>
+    
+ 
+    <br><span class="h3">Result files</span><br>
+    <table>
+      <tr><td><a href="" onclick="location.href=this.href+'/input_data.final_tree.fa';return false;">input_data.final_tree.fa</a></td></tr>
+      <tr><td><a href="" onclick="location.href=this.href+'/input_data.final_tree.used_alg.fa';return false;">input_data.final_tree.used_alg.fa</a></td></tr>
+      <tr><td><a href="" onclick="location.href=this.href+'/input_data.final_tree.nw';return false;">input_data.final_tree.nw</a></td></tr>
+      <tr><td><a href="" onclick="location.href=this.href+'/input_data.final_tree.nwx';return false;">input_data.final_tree.nwx</a></td></tr>
+    </table>
+
+    <table><tr><td><button onclick="show_tree()">show tree result</button></td></tr>
+    <div class="imgbox" id='tree' style="display: none;"></div>
+    <div style="margin:0px;padding:0px;text-align:left;"><a href="http://etetoolkit.org" style="font-size:7pt;" target="_blank" >Powered by etetoolkit</a></div>
+    
+  </body>
+    
+  </html>

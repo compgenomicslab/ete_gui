@@ -1,0 +1,544 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Phylogenetic analysis toolkit by ETE3</title>
+    <!--<link rel="stylesheet" href="/css/gn2.css" type="text/css">-->
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/ete_gui/base.css" type="text/css">
+    <style>.example{cursor:pointer;color:#003399;}.help{display:none;}</style>
+    <style>
+    .ascii-art {
+      font-family: monospace;
+      white-space: pre;
+      }
+    </style>
+    <!-- for ete_build and general-->
+    <!-- <script src="/js/jquery-1.9.1.min.js"></script>-->
+    <script type="text/javascript" src="/eel.js"></script>
+    <script src="/js/ete_build/ete_build.js"></script>
+
+    <!-- for ete_evol-->
+    <script src='js/ete_evol/ete_evol.js'></script>
+    
+    <!-- for ete_compare-->
+    <script src="js/ete_compare/ete_compare.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://davidstutz.de/bootstrap-multiselect/dist/js/bootstrap-multiselect.js"></script>
+    <link href="https://davidstutz.de/bootstrap-multiselect/docs/css/bootstrap-3.3.2.min.css" rel="stylesheet"/>
+    <link href="https://davidstutz.de/bootstrap-multiselect/dist/css/bootstrap-multiselect.css" rel="stylesheet"/>
+    <script src="https://davidstutz.de/bootstrap-multiselect/docs/js/bootstrap-3.3.2.min.js"></script>
+    
+    <!-- for ete_ncbiquery -->
+    <script src="js/ete_ncbiquery/ete_ncbiquery.js"></script>
+    <!-- for ete_view-->
+    <!-- Import scripts in this specific order -->
+    
+    <!--<script src="/js/jquery-1.9.1.min.js"></script> outdated--> 
+    <!--<script src="/js/ete_view/jquery-1.4.2.min.js"></script>  outdated-->
+    <script src="/js/ete_view/jquery-ui-1.8.4.custom.min.js"></script>
+    <script src="/js/ete_view/ete.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/ete_view/ete.css" >
+
+    <script>
+    function createXMLHttpRequest(){
+      if (XMLHttpRequest){
+        return new XMLHttpRequest();
+      }
+      return null;
+    }
+    function showexample(){
+      // var st = "aa";
+      // var sf = ".seq";
+      // var sfile = "/example/NUP62.aa.fa";
+      if (document.getElementById("stn").checked === true && document.getElementById("sfu").checked === true) { // unglined nt seq
+        var sfile = "/example/NUP62.nt.fa"
+      } else if (document.getElementById("stn").checked === true && document.getElementById("sfa").checked === true) { // aligned nt seq
+        var sfile = "/example/hsa.nt.aln"
+      } else if (document.getElementById("stn").checked === false && document.getElementById("sfa").checked === true) { // aligned aa seq
+        var sfile = "/example/P53.aa.aln"
+      } else {
+        var sfile = "/example/NUP62.aa.fa"; // unaligned aa seq
+      }
+      //var sfile = "/example/NUP62.aa.fa" + st + sf; //on url
+      
+      load_example(sfile, "sequence")
+    }
+
+    function compare_showexample(){
+      var sfile = "/example/clustalo_NUP62.aa.fa.final_tree.nw" 
+      var sfile2 = "/example/mafft_NUP62.aa.fa.final_tree.nw"
+      
+      load_example(sfile, "src_tree")
+      load_example(sfile2, "ref_tree")
+    }
+
+    function load_example(sfile, id){
+      var xhr = createXMLHttpRequest();
+      xhr.abort();
+      xhr.onreadystatechange = function(){
+        if (xhr.readyState == 4 && xhr.status == 200){
+          document.getElementById(id).innerHTML = xhr.responseText;
+        }
+      }
+      xhr.open("get", sfile, true);
+      xhr.send(null);
+      document.getElementById(id).innerHTML = xhr.responseText;
+    }
+
+    function cl(){location.href="/ete_gui.html";}
+    onload=function(){
+      init_ete();
+      document.getElementById("example").addEventListener("click",function(){showexample();},false);
+      document.getElementById("example").addEventListener("mouseover",function(){this.style.color='#33cc99';},false);
+      document.getElementById("example").addEventListener("mouseout",function(){this.style.color='#003399';},false);
+      document.getElementById("compare_example").addEventListener("click",function(){compare_showexample();},false);
+      document.getElementById("example").addEventListener("mouseover",function(){this.style.color='#33cc99';},false);
+      document.getElementById("example").addEventListener("mouseout",function(){this.style.color='#003399';},false);
+    }
+
+    function openTool(evt, toolName) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(toolName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+    </script>
+    <script>
+      $(document).ready(function(){$("#wf").click(function(){$("#help").animate({height: "toggle", opacity: "toggle"},"fast");});});
+    </script>
+    <script>
+      $(function() {
+
+        $('#site_model').multiselect({
+          includeSelectAllOption: true
+        });
+
+        $('#evol_models').click(function() {
+          //alert($('#chkveg').val());
+        });
+      });
+    </script>
+    
+  </head>
+
+  <body>
+    <table width=800>
+      <tr>
+        <td align="center">
+          <!-- <a href="https://www.genome.jp/"><img src="/Fig/gntop2.gif" alt="GenomeNet icon" border=0></a> -->
+        </td>
+        <td align="center">
+          <h2 width=300 class="title2">Phylogenetic analysis toolkit by ETE3</h2>
+        </td>
+      </tr>
+    </table>
+
+    <br>
+
+    <table width=800 cellpadding=2 class="frame2" >
+      <tr><td align="center" class="td20">
+          <table width=740>
+            <div class="tab">
+              <button class="tablinks" onclick="openTool(event, 'build')" id="defaultOpen">ete_build</button>
+              <button class="tablinks" onclick="openTool(event, 'evol')">ete_evol</button>
+              <button class="tablinks" onclick="openTool(event, 'compare')">ete_diff/compare</button>
+              <button class="tablinks" onclick="openTool(event, 'ncbiquery')">ete_ncbiquery</button>
+              <button class="tablinks" onclick="openTool(event, 'view')">ete_view</button>
+            </div>
+          </table>
+      </td></tr>
+    </table>
+
+      <div id="build" class="tabcontent">
+        <h3>ete-build</h3>
+        <p>provides a unified interface to wrap the execution of phylogenetic workflows, comprising the reconstruction of gene trees and supermatrix-based species trees.</p>
+
+            <br><div style="margin-left:20px;margin-right:20px">
+              <table width=720 style="border: 1px solid transparent" >
+                <tr><td style=" text-align: left; ">
+                    <form target="_blank" name="ete" id="ete" method="post" action="/ete" enctype="multipart/form-data"><!--action="/ete_gui.html"-->
+
+                      <table width=700 >
+                        <tr><td align=right style="border: solid 1px #DDD; text-align: right; ">
+                            <input type="button" value="Compute" onclick="run_ete()">
+                            <input type="button" value="Clear" onclick="cl()">
+                        </td></tr>
+                      </table>
+
+                      <b>Sequence type:</b>
+                      <input type="radio" name="seqtype" id="stp" value="protein" label="stp" checked="checked" ><label for="stp">Protein</label>
+                      <input type="radio" name="seqtype" id="stn" value="nucleotide" label="stn" onclick="modtester()"><label for="stn">Nucleotide</label>
+                      <br><br>
+                      <b>Input type:</b>
+                      <input type="radio" name="seqformat" id="sfu" value="unaligned" label="sfu" checked="checked" onclick="msa()"><label for="sfu">Unaligned</label>
+                      <input type="radio" name="seqformat" id="sfa" value="aligned" label="sfa" onclick="msa()"><label for="sfa">Aligned</label>
+                      <br><br>
+                      <table>
+                        <tr>
+                          <td valign="top">Sequence data<br>(FASTA format)<br><br>
+                          <span id="example" class="example">Example</span>
+                          </td>
+                          <td><textarea name="sequence" id="sequence" style="font-size:12px;width:500px;height:100px"></textarea></td>
+                        </tr>
+                        
+                        <!--
+                        <tr>
+                          
+                          <td>Local file name</td>
+                          <td>
+                              <input type="file" id="upload_file" name="upload_file" size=30>
+                          </td>
+                          
+                        </tr>
+                         -->
+                         
+                        <tr>
+                          <td valign="top">Sequence data<br>(FASTA file path)<br><br>
+                          </td>
+                          <td><input class="form-control" name="input_path" id="input_path" placeholder="Enter your fasta file path"></td>
+                        </tr>
+
+                      </table>
+                      <br>
+                      <b>Select <span id="wf" class="example">workflow</span>:</b>  <span id="selectedworkflow"></span><br><br>
+                      <table>
+                        <tr>
+                          <td>Aligner</td><td>Alignment cleaner</td><td>Model tester</td><td>Tree builder</td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <select name="workflow1" id="workflow1" onchange="showwf()">
+                              <option value="none">none</option>
+                              <option value="mafft_default" selected="selected">mafft_default</option>
+                              <option value="mafft_einsi">mafft_einsi</option>
+                              <option value="mafft_linsi">mafft_linsi</option>
+                              <option value="mafft_ginsi">mafft_ginsi</option>
+                              <option value="clustalo_default">clustalo_default</option>
+                              <option value="muscle_default">muscle_default</option>
+                            </select>
+                          </td>
+                          <td>
+                            <select name="workflow2" id="workflow2" onchange="showwf()">
+                              <option value="-none" selected="selected">none</option>
+                              <option value="-trimal001">trimal001</option>
+                              <option value="-trimal01">trimal01</option>
+                              <option value="-trimal02">trimal02</option>
+                              <option value="-trimal05">trimal05</option>
+                              <option value="-trimal_gappyout">trimal_gappyout</option>
+                            </select>
+                          </td>
+                          <td>
+                            <select name="workflow3" id="workflow3" onchange="modtester();showwf()">
+                              <option value="-none" selected="selected">none</option>
+                              <option value="-prottest_default">prottest_default</option>
+                              <option value="-pmodeltest_full_ultrafast">pmodeltest_full_ultrafast</option>
+                              <option value="-pmodeltest_full_fast">pmodeltest_full_fast</option>
+                              <option value="-pmodeltest_full_slow">pmodeltest_full_slow</option>
+                              <option value="-pmodeltest_soft_ultrafast">pmodeltest_soft_ultrafast</option>
+                              <option value="-pmodeltest_soft_fast">pmodeltest_soft_fast</option>
+                              <option value="-pmodeltest_soft_slow">pmodeltest_soft_slow</option>
+                            </select>
+                          </td>
+                          <td>
+                            <select name="workflow4" id="workflow4" onchange="modtester();showwf()">
+                              <option value="-none">none</option>
+                              <option value="-bionj_default">bionj_default</option>
+                              <option value="-fasttree_default" selected="selected">fasttree_default</option>
+                              <option value="-fasttree_full">fasttree_full</option>
+                              <option value="-phyml_default">phyml_default</option>
+                              <option value="-phyml_default_bootstrap">phyml_default_bootstrap</option>
+                              <option value="-raxml_default">raxml_default</option>
+                              <option value="-raxml_default_bootstrap">raxml_default_bootstrap</option>
+                            </select>
+                          </td>
+                        </tr>
+                      </table>
+                      <br><br>
+                      <!-- <b>Enter your email address:</b> (optional) -->
+                      <!-- <input type="text" name="email" id="email" placeholder="your@email.com" size="30">-->
+                      <table width=700>
+                        <tr><td style="border: solid 1px #DDD; text-align: right; ">
+                            <input type="submit" value="Compute" onclick="run_ete()">
+                            <!--<input type="submit" value="Start upload" />-->
+                            <input type="button" value="Clear" onclick="cl()">
+                        </td></tr>
+                      </table>
+                    </form>
+                  </td>
+                </tr>
+              </table>
+
+              <div id="help" class="help">
+                <hr class="frame2">
+                <p>
+                  <strong>WETE: a web interface of the ETE3 build function for sequences alignment and phylogenetic tree reconstruction</strong>
+                </p>
+                <p>
+                  <strong>Aligners</strong>
+                  :
+                </p>
+                <p>
+                  mafft_default: mafft alignment with default parameters
+                </p>
+                <p>
+                  mafft_einsi: mafft alignment using the E-INS-i mode
+                </p>
+                <p>
+                  mafft_linsi: mafft alignment using the L-INS-i mode
+                </p>
+                <p>
+                  mafft_ginsi: mafft alignment using the G-INS-i mode
+                </p>
+                <p>
+                  clustalo_default: clustalo with default parameters
+                </p>
+                <p>
+                  muscle_default: muscle alignment with default parameters
+                </p>
+                <p>
+                  <strong>Alignments cleaners:</strong>
+                </p>
+                <p>
+                  trimal001: trimal alignment cleaning removing columns with &gt;1% gaps
+                </p>
+                <p>
+                  trimal01: trimal alignment cleaning removing columns with &gt;10% gaps
+                </p>
+                <p>
+                  trimal02: trimal alignment cleaning removing columns with &gt;20% gaps
+                </p>
+                <p>
+                  trimal03: trimal alignment cleaning removing columns with &gt;30% gaps
+                </p>
+                <p>
+                  trimal05: trimal alignment cleaning removing columns with &gt;50% gaps
+                </p>
+                <p>
+                  trimal_gappyout: trimal alignment cleaning using gappyout algorithm
+                </p>
+                <p>
+                  <strong>Model testers:</strong>
+                </p>
+                <p>
+                  prottest_default: Uses BioNJ trees to select best protein model from: JTT, WAG, VT, LG and MtREV. Fixed parameters: +G+I+F
+                </p>
+                <p>
+                  pmodeltest_full_ultrafast: Test all models using NJ tree inference and skipping gamma, invariant sites, and frequency site estimations (!G!I!F)
+                </p>
+                <p>
+                  pmodeltest_full_fast: Test all models using NJ tree inference
+                </p>
+                <p>
+                  pmodeltest_full_slow: Test all models using ML tree inference
+                </p>
+                <p>
+                  pmodeltest_soft_ultrafast: Test JTT,WAG,VT,LG,MtREV models using NJ tree inference and skipping gamma, invariant sites, and frequency site estimation
+                  (!G!I!F)
+                </p>
+                <p>
+                  pmodeltest_soft_fast: Test JTT,WAG,VT,LG,MtREV models using NJ tree inference
+                </p>
+                <p>
+                  pmodeltest_soft_slow: Test JTT,WAG,VT,LG,MtREV models using ML tree inference
+                </p>
+                <p>
+                  <strong>Tree builders:</strong>
+                </p>
+                <p>
+                  bionj_default: BioNJ tree inferred with Phyml. Default models JTT/GTR
+                </p>
+                <p>
+                  fasttree_default: Fasttree with default parameters
+                </p>
+                <p>
+                  fasttree_full: Fasttree with slow NNI and MLACC=3
+                </p>
+                <p>
+                  phyml_default: Phyml tree using +G+I+F, 4 classes and aLRT branch supports. Default models JTT/GTR
+                </p>
+                <p>
+                  phyml_default_bootstrap: Phyml tree using +G+I+F, 4 classes and 100 bootstraps. Default models JTT/GTR
+                </p>
+                <p>
+                  raxml_default: RAxML with default parameters, GAMMA JTT/GTR and aLRT branch supports.
+                </p>
+                <p>
+                  raxml_default_bootstrap: RAxML with default parameters, GAMMA JTT/GTR and 100 bootstrap replicates
+                </p>
+              </div>
+
+
+              <!-- <img src='tree'/> -->
+
+            </div>
+      </div>
+
+      <div id="evol" class="tabcontent">
+        <h3>ete-evol</h3>
+        <p>ete-evol is a tool that automates CodeML and Slr analyses by using pre-configured evolutionary models and directly producing a graphical representation of the results.</p>
+        
+        <div style='text-align: left;'>
+          <b> Paste a tree in newick format</b><br>
+          <textarea  id="evol_tree" style='width: 500px; height: 80px; vertical-align:middle;'>/home/ziqi/Projects/ete4/test/ECP_EDN_15.nw</textarea>
+          <br>
+          <br>
+
+          <b> Paste alignment in fasta format</b><br>
+          <textarea  id="evol_aln" style='width: 500px; height: 80px; vertical-align:middle;'>/home/ziqi/Projects/ete4/test/ECP_EDN_15.fasta</textarea>          
+          <br>
+        </div>
+          <br>
+
+          
+          <tr>
+            <td>
+              <b><span id="evol_branchmodel" class="example">Evolution Branch Model(s)</span>:</b>
+              <br> 
+              <select name="branch_model" id="branch_model">
+                <option value="none">none</option>
+                <option value="fb" selected="selected">fb</option>
+              </select>
+              <br>
+            </td>
+            
+          </tr>
+          <br>
+
+          <tr>
+            <b><span id="evol_sitemodel" class="example">Evolution Site Model(s)</span>:</b> 
+            <br> 
+            <select id="site_model" name="site_model" multiple="multiple">
+              <option value="SLR">SLR</option>
+              <option value="M2">M2</option>
+              <option value="M1">M1</option>
+            </select>
+            <br>
+          </tr>
+          <br>
+          <br>
+        <div style="clear:both;" >
+          <!-- Start tree visualization by calling draw_tree_image functionn and
+        pointing to a div container.  -->
+          <input type='submit' value='Compute'  id="evol_models" onClick='ete_vol()'>
+          <input type='button' value='Clear' onClick=cl()>
+        </div>
+      
+      </div>
+      
+      <div id="compare" class="tabcontent">
+        <h3>ete-compare</h3>
+        <p>ete-compare allows to compute topological distances between trees by using 3 types of measures:</p>
+        
+        <div style='text-align: left;'>
+          <b> Source Tree(s)</b><br>
+          <textarea  id="src_tree" style='width: 500px; height: 80px; vertical-align:middle;', placeholder="a list of tree(s) in newick format (filenames or quoted strings)"></textarea>
+          <br> 
+          <br>
+            
+          <b> Reference Tree(s)</b><br>  
+          <textarea  id="ref_tree" style='width: 500px; height: 80px; vertical-align:middle;', placeholder="One or more reference trees in newick format (filename or quoted string"></textarea>
+          <br>
+          <span id="compare_example" class="compare_example">Example</span>
+          <br>
+          <div style="clear:both;" >
+            <!-- Start tree visualization by calling draw_tree_image functionn and
+          pointing to a div container.  -->
+            <input type='submit' value='Compute'  onClick='ete_compare()'>
+            <input type='button' value='Clear' onClick=cl()>
+          </div>
+
+          <!-- show results-->
+          <!-- <pre id='compare_result'></pre> -->
+          <br>
+          <p id="showData" class='showData'></p>
+        </div>
+        
+      </div>
+
+      <div id="ncbiquery" class="tabcontent">
+        <h3>ete-ncbiquery</h3>
+        <p>ete-ncbiquery allows to download, parse and query a local copy of the NCBI taxonomy database.</p>
+        <div style='text-align: left;'>
+          <b> Provide NCBI taxa identifiers</b><br>
+          <textarea  id="ncbiquery_query" style='width: 500px; height: 80px; vertical-align:middle;', placeholder="e.g 9606, 9443, Homo sapiens, primates"></textarea>
+          <br> 
+          <br>
+            
+         
+          <div style="clear:both;" >
+            <!-- Start tree visualization by calling draw_tree_image functionn and
+          pointing to a div container.  -->
+            <input type='submit' value='Compute'  onClick='ete_ncbiquery()'>
+            <input type='button' value='Clear' onClick=cl()>
+          </div>
+
+          <!-- show results-->
+          <!-- <pre id='compare_result'></pre> -->
+          <br>
+          <pre id="showNCBIquery" class='ascii-art'></pre>
+        </div>
+      </div>
+
+      <div id="view" class="tabcontent">
+        <h3>ete-view</h3>
+        <p>visualization and rendering of phylogenetic trees and multiple sequence alignments.</p>
+        <!-- This layer must be called "popup" -->
+        <div id="popup"></div>
+        <div style='text-align: left;'>
+          <b> Paste a tree in newick format:</b><br>
+          <textarea  id="tree" style='width: 500px; height: 80px; vertical-align:middle;'>/home/ziqi/Projects/ete4/ana_fork/webplugin/test_data/6055.c100000_g2_i1_m.21191.nw</textarea>
+          <br>
+          <br>
+
+          <b> prune taxid list:</b><br>
+          <textarea  id="taxid" style='width: 500px; height: 80px; vertical-align:middle;'>taxid</textarea>      
+          <br> 
+          <br>
+
+          <b> Paste alignment path and press "Draw tree":</b><br>
+          <textarea  id="aln" style='width: 500px; height: 80px; vertical-align:middle;'>/home/ziqi/Projects/ete4/ana_fork/webplugin/test_data/6055.c100000_g2_i1_m.21191.faa</textarea>          <br>
+          
+          <div id='server_status'></div>
+          <div style="clear:both;" >
+            <!-- Start tree visualization by calling draw_tree_image functionn and
+          pointing to a div container.  -->
+            <input type='submit' value='Draw tree'  onClick='get_tree_image(($("#tree").val()), ($("#aln").val()), ($("#taxid").val()),"#img1") ;'>
+            <input type='button' value='Clear' onClick=cl()>
+            
+          </div>
+
+          <br>
+          <div id="highlighter"></div>
+          
+          <!-- Tree container -->
+          <div class="ete_image" id="img1"></div>
+          <br>
+        </div>
+
+      </div>
+
+
+      
+      <!-- Optional JavaScript -->
+      <!-- jQuery first, then Popper.js, then Bootstrap JS 
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+      -->
+      <div style="margin:0px;padding:0px;text-align:left;"><a href="http://etetoolkit.org" style="font-size:7pt;" target="_blank" >Powered by etetoolkit</a></div>
+  </body>
+  <script>
+    // Get the element with id="defaultOpen" and click on it
+    document.getElementById("defaultOpen").click();
+  </script>
+  
+</html>

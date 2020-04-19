@@ -1,0 +1,97 @@
+<!doctype html><html><head><title>Phylogenetic analysis pipeline by ETE3</title>
+    <link rel="stylesheet" href="/css/gn2.css?1584441637" type="text/css">
+    <link rel="stylesheet" href="/css/ete/base.css?1584441637" type="text/css">
+    <script src="//d3js.org/d3.v3.min.js"></script>
+    <script src="/js/ete/newick.js?1584441637"></script>
+    <script src="/js/ete/d3.phylogram.js?1584441637"></script>
+    <script src="/js/ete/dl.js?1584441637"></script>
+    <script>
+    (function() {
+      "use strict";
+      var ua = navigator.userAgent, maxn = 0,
+          unrooted_data = "(mcc_697703:0.332037,myd_102752210:0.303202,((mdo_100015820:0.21414,(mdo_100015779:0.0908906,cjc_100389979:0.101675)0.96:0.0622486)0.994:0.110717,(lve_103087664:0.090212,(tup_102484756:0.0551989,(ngi_103728047:0.129092,(hsa_126:0.0164333,(rro_104668838:0.0228098,ptr_744064:0.0541301)0.406:0.012589)0.962:0.0333659)0.803:0.0201592)0.142:0.0262234)0.998:0.122019)0.981:0.0964392)0.981;",
+          midpoint_data = "(((mdo_100015820:0.21414,(mdo_100015779:0.0908906,cjc_100389979:0.101675)96:0.0622486)99.4:0.110717,(lve_103087664:0.090212,(tup_102484756:0.0551989,(ngi_103728047:0.129092,(hsa_126:0.0164333,(rro_104668838:0.0228098,ptr_744064:0.0541301)40.6:0.012589)96.2:0.0333659)80.3:0.0201592)14.2:0.0262234)99.8:0.122019)98.1:0.0518096,(mcc_697703:0.332037,myd_102752210:0.303202)98.1:0.0446296)98.1;";
+      function getnwdata(){
+        return midpoint_data;
+      }
+      function getl(d){
+        for(var e in d) {
+          if(e == "name") {
+            var l = d[e].length *12;
+            if(maxn < l) {
+              maxn = l;
+            }
+          }
+          if(e == "branchset") {
+            for(var i in d[e]) {
+              getl(d[e][i]);
+            }
+          }
+        }
+      }
+      function draw(){
+        var data = {},newick = {},num = 1,width = 500,height = 500,arr = [],
+            skipInnerLabels = false,skipLeafLabels = false,
+            skipBranchLengthScaling  = false,skipTicks = false,
+            mobj = {},mval = "",method = "";
+        data = getnwdata();
+        if (!data){
+          return false;
+        }
+        newick = Newick.parse(data);
+        arr = data.match(/,/g) ? data.match(/,/g) : arr;
+        num = arr.length + 1;
+        width = num * 15 > width ? num * 15 : width;
+        width = width > 1000 ? 1000 : width;
+        height = num * 20 > height ? num * 20 : height;
+        getl(newick);
+        maxn = maxn < 400 ? 400 : maxn;
+        skipInnerLabels = document.getElementById('skipInnerLabels').checked;
+        skipLeafLabels = document.getElementById('skipLeafLabels').checked;
+        skipBranchLengthScaling = document.getElementById('skipBranchLengthScaling').checked;
+        skipTicks = document.getElementById('skipTicks').checked;
+        method = "rooted";
+        document.getElementById('phylogram').innerHTML = "";
+        d3.phylogram.build('#phylogram', newick, {
+          width: width,
+          height: height,
+          maxn: maxn,
+          method: method,
+          skipInnerLabels: skipInnerLabels,
+          skipLeafLabels: skipLeafLabels,
+          skipBranchLengthScaling: skipBranchLengthScaling,
+          skipTicks: skipTicks
+        });
+      }
+      onload = function(){
+        document.getElementById("skipInnerLabels").addEventListener("change",draw,false);
+        document.getElementById("skipLeafLabels").addEventListener("change",draw,false);
+        document.getElementById("skipBranchLengthScaling").addEventListener("change",draw,false);
+        document.getElementById("skipTicks").addEventListener("change",draw,false);
+        document.getElementById("dlj").addEventListener("click",function(){var data = getnwdata();downloadjson("input.fa.final_tree.nw.json",data);},false);
+        document.getElementById("dls").addEventListener("click",function(){downloadsvg("input.fa.final_tree.nw.svg");},false);
+        document.getElementById("dlp").addEventListener("click",function(){downloadpng("input.fa.final_tree.nw.png");},false);
+        draw();
+      };
+    })();
+    </script>
+    </head><body><table width=680 id="pagetop"><tr><td width=70 align="center"><a href="https://www.genome.jp/"><img src="/Fig/gntop2.gif" alt="GenomeNet icon" width=50 height=50></a></td><td><h2 class="title2"><a href="/tools/ete/">Phylogenetic analysis pipeline by ETE3</a></h2></td></tr></table><span class="h3">Workflow</span><br>mafft_default-none-none-fasttree_default<br><span class="h3">Method</span><ul style="margin-left:-20px">
+    <li>Alignment and phylogenetic reconstructions were performed using the function "build" of ETE3 v3.1.1 (<a href=http://www.ncbi.nlm.nih.gov/pubmed/26921390>Huerta-Cepas et al., 2016</a>) as implemented on the <a href=https://www.genome.jp/tools/ete/>GenomeNet (https://www.genome.jp/tools/ete/)</a>. </li>
+    <li>Alignment was performed with MAFFT v6.861b with the default options (<a href=http://www.ncbi.nlm.nih.gov/pubmed/23329690>Katoh and Standley, 2013</a>). </li>
+    <li>The tree was constructed using FastTree v2.1.8 with default parameters (<a href=http://www.ncbi.nlm.nih.gov/pubmed/19377059>Price et al., 2009</a>). </li>
+    <li>Values at nodes are SH-like local support. </li>
+    </ul>
+    (These texts may be used for your publication.)
+    <br><span class="h3">Result files</span><br>
+    <table>
+        <tr><td><a href="/">input.fa.final_tree.fa</a>&nbsp;&nbsp;&nbsp;</td><td><a href="/"><img src="/Fig/dl1.png" width="16px"></a></td></tr>
+        <tr><td><a href="/">input.fa.final_tree.used_alg.fa</a>&nbsp;&nbsp;&nbsp;</td><td><a href="/"><img src="/Fig/dl1.png" width="16px"></a></td></tr>
+        <tr><td><a href="/">outTree_unrooted.nw</a>&nbsp;&nbsp;&nbsp;</td><td><a href="/"><img src="/Fig/dl1.png" width="16px"></a></td></tr>
+        <tr><td><a href="/">outTree_midpointRooted.nwk</a>&nbsp;&nbsp;&nbsp;</td><td><a href="/"><img src="/Fig/dl1.png" width="16px"></a></td></tr>
+        
+        
+    </table>
+    <form name="ete" id="ete" method="post" action="/tools-bin/ete?id=200317193756917e0790632be498ff099489b85870a4506ddbe4#gtop"><span class="h3" id="gtop">Phylogram</span>&nbsp;&nbsp;&nbsp;(midpoint rooted tree)<input type="hidden" id="method" value="midpoint"><br><input type="hidden" name="id" value="200317193756917e0790632be498ff099489b85870a4506ddbe4"><input type="checkbox" name="skipBranchLengthScaling" id="skipBranchLengthScaling" value="true" class="dlimg" ><label for="skipBranchLengthScaling" class="dlimg">without branch length</label>  <input type="checkbox" name="skipInnerLabels" id="skipInnerLabels" value="true" class="dlimg" ><label for="skipInnerLabels" class="dlimg">without branch length labels</label>  <input type="checkbox" name="skipLeafLabels" id="skipLeafLabels" value="true" class="dlimg" ><label for="skipLeafLabels" class="dlimg">without leaf labels</label>  <input type="checkbox" name="skipTicks" id="skipTicks" value="true" class="dlimg" ><label for="skipTicks" class="dlimg">without ticks</label>  </form>
+    <div id="dljson">JSON&nbsp;&nbsp;&nbsp;<img src="/Fig/dl1.png" width="16px" class="dlimg" id="dlj"></div><div id="dlsvg">SVG&nbsp;&nbsp;&nbsp;<img src="/Fig/dl1.png" width="16px" class="dlimg" id="dls"></div><div id="dlpng">PNG&nbsp;&nbsp;&nbsp;<img src="/Fig/dl1.png" width="16px" class="dlimg" id="dlp"></div><div id="phylogram"></div>
+    <hr><a href="https://www.genome.jp/">GenomeNet</a></body></html>
+    

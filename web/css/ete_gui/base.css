@@ -1,0 +1,114 @@
+body {font-size:12px; font-family:verdana,arial,helvetica,sans-serif; margin:20px; background-color:#ffffff}
+.text {font-size:12px; font-family:verdana,arial,helvetica,sans-serif}
+h1 {font-size:24px; font-weight:bold; font-family:verdana,arial,helvetica,sans-serif}
+h2 {font-size:18px; font-weight:bold; font-family:verdana,arial,helvetica,sans-serif}
+h3 {font-size:16px; font-weight:bold; font-family:verdana,arial,helvetica,sans-serif}
+h4 {font-size:14px; font-weight:bold; font-family:verdana,arial,helvetica,sans-serif}
+b {font-size:12px; font-weight:bold; font-family:verdana,arial,helvetica,sans-serif}
+select {font-size:12px; font-family:verdana,arial,helvetica,sans-serif}
+a {text-decoration:none}
+a:link {color:#003399}
+a:visited {color:#003399}
+a:hover {color:#33cc99}
+font.small {font-size: 10px}
+font.current {color: #444444}
+font.missing {color: #ffffff}
+font.title1 {color: #007700; font-size:16px; font-weight:bold; font-family:verdana,arial,helvetica,sans-serif}
+font.title2 {color: #003399; font-size:16px; font-weight:bold; font-family:verdana,arial,helvetica,sans-serif}
+font.title3 {color: #440066; font-size:16px; font-weight:bold; font-family:verdana,arial,helvetica,sans-serif}
+h4.title1 {color: #007700}
+h3.title1 {color: #007700}
+h2.title1 {color: #007700}
+h4.title2 {color: #003399}
+h3.title2 {color: #003399}
+h2.title2 {color: #003399}
+h4.title3 {color: #440066}
+h3.title3 {color: #440066}
+h2.title3 {color: #440066}
+input {font-size:12px; font-family:verdana,arial,helvetica,sans-serif}
+pre {font-size:12px}
+hr.frame2 {border: 1px solid #d4e4f0; color: #d4e4f0}
+table.frame1 {border-color: #e0f0e0; border-width: 2px 2px 2px 2px; border-style: solid; border-collapse: collapse}
+table.frame2 {border-color: #d4e4f0; border-width: 2px 2px 2px 2px; border-style: solid; border-collapse: collapse}
+table.frame3 {border-color: #ddccff; border-width: 2px 2px 2px 2px; border-style: solid; border-collapse: collapse}
+th {font-size:12px; font-weight:bold; font-family:verdana,arial,helvetica,sans-serif}
+td.td10 {background-color: #e0f0e0}
+td.td20	{background-color: #d4e4f0;}
+td.td30	{background-color: #ddccff;}
+td {font-size:12px; font-family:verdana,arial,helvetica,sans-serif}
+
+
+
+.body {
+  font-size: 19px;
+}
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 17px 17px;
+  transition: 0.3s;
+  font-size: 21px;
+  color: DodgerBlue;
+  font-weight: bold
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+.tabcontent {
+  animation: fadeEffect 1s; /* Fading effect takes 1 second */
+}
+
+/* Go from zero to full opacity */
+@keyframes fadeEffect {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+/* to show example*/
+.example{cursor:pointer;color:#003399;}.help{display:none;}
+.compare_example{cursor:pointer;color:#003399;}.help{display:none;}
+
+.showData th, td, p, input {
+            font:14px Verdana;
+        }
+.showData table, th, td 
+{
+    border: solid 1px #DDD;
+    border-collapse: collapse;
+    padding: 2px 3px;
+    text-align: center;
+}
+.showData th {
+    font-weight:bold;
+}
+
+.multiselect-container>li>a>label {
+  padding: 4px 20px 3px 20px;
+}
