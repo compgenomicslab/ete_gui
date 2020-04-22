@@ -25,10 +25,10 @@
 
         var request = new XMLHttpRequest()
         request.open("GET",url)
-        request.send(null);/*设置XHR对象不发送数据到服务器*/
-        request.onload = function() {/*设置当获XHR对象获取到返回信息后执行以下代码*/
-          if(request.status == 200) {/*如果返回的状态为200，即为成功获取数据*/
-                var p = document.getElementById("tree");/*获取DOM中id为luck的p元素*/
+        request.send(null);/*don't send*/
+        request.onload = function() {/*execute after dom load*/
+          if(request.status == 200) {/*retreive data if suceed*/
+                var p = document.getElementById("tree");/*gei tree element from DOM*/
                 if (p.style.display === "none"){
                   //alert('This is none')
                   p.style.display="block"
